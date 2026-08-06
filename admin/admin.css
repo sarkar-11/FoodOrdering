@@ -1,0 +1,118 @@
+.admin-body {
+    background-color: #f5f5f5;
+    margin: 0;
+}
+
+.admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background: #2e2422;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.admin-sidebar-profile {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 16px;
+}
+
+.admin-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #4a3d3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 1.6rem;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.15);
+}
+
+.admin-sidebar-profile h6 {
+    color: #fff;
+    font-weight: 600;
+}
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.admin-nav-link {
+    color: #d8cfcc;
+    text-decoration: none;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-nav-link i {
+    width: 18px;
+    text-align: center;
+}
+
+.admin-nav-link:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+
+.admin-nav-link.active {
+    background: var(--primary, #d9480f);
+    color: #fff;
+    font-weight: 600;
+}
+
+.admin-nav-link.mt-auto {
+    margin-top: auto;
+}
+
+.admin-content {
+    margin-left: 240px;
+    padding: 28px 32px;
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 12px;
+    }
+    .admin-sidebar-profile {
+        display: none;
+    }
+    .admin-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .admin-nav-link {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+    .admin-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
