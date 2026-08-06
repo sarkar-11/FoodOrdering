@@ -3,6 +3,15 @@ include '../includes/db.php';
 include '../includes/auth_check.php';
 require_role('admin');
 
+if (isset($_GET['mark_paid'])) {
+    $order_id = (int)$_GET['mark_paid'];
+    $stmt = $conn->prepare("UPDATE orders SET payment_status='paid' WHERE id=?");
+    $stmt->bind_param("i", $order_id);
+    $stmt->execute();
+    header("Location: manage_orders.php?updated=1");
+    exit();
+}
+
 if (isset($_POST['update_status'])) {
     $order_id = (int)$_POST['order_id'];
     $status = $_POST['status'];
@@ -82,6 +91,12 @@ include '../includes/header.php';
                             <span class="badge bg-<?php echo $o['payment_status']==='paid' ? 'success' : 'warning'; ?>">
                                 <?php echo ucfirst($o['payment_status']); ?>
                             </span>
+                            <?php if ($o['payment_status'] !== 'paid'): ?>
+                                <br><a href="?mark_paid=<?php echo $o['id']; ?>" class="btn btn-sm btn-outline-success mt-1"
+                                       onclick="return confirm('Mark Order #<?php echo $o['id']; ?> as paid? Only do this if payment was actually confirmed.');">
+                                    Mark as Paid
+                                </a>
+                            <?php endif; ?>
                         </td>
                         <td><span class="badge bg-info"><?php echo ucfirst($o['status']); ?></span></td>
                         <td>
