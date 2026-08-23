@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+include '../includes/config.php';
 
 $error = "";
 
@@ -7,7 +8,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
-    $role = $_POST['role']; // 'user' or 'restaurant'
+    $role = $_POST['role'] ?? '';
+
+    // Security: only 'user' and 'restaurant' may ever be self-registered here.
+    // Without this check, a crafted POST request (e.g. role=admin) could grant
+    // admin access without ever going through admin/register.php's secret code.
+    $allowedRoles = ['user', 'restaurant'];
+    if (!in_array($role, $allowedRoles, true)) {
+        $role = 'user';
+    }
 
     // Basic validation
     if (empty($name) || empty($email) || empty($password)) {
@@ -28,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt2->bind_param("ssss", $name, $email, $hashed_password, $role);
 
             if ($stmt2->execute()) {
-                header("Location: login.php?registered=1");
+                header("Location: " . APP_BASE_URL . "/auth/login.php?registered=1");
                 exit();
             } else {
                 $error = "Something went wrong. Try again.";

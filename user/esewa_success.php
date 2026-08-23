@@ -1,15 +1,13 @@
 <?php
 include '../includes/db.php';
-include '../includes/auth_check.php';
 include '../includes/esewa_config.php';
-require_role('user');
 
-$user_id = $_SESSION['user_id'];
 $error = "";
 $order = null;
 
-// eSewa sends back a base64-encoded JSON string in the "data" query param
-$encodedData = $_GET['data'] ?? '';
+// eSewa sends back a base64-encoded JSON string in the "data" parameter.
+// Use REQUEST so we accept either GET or POST redirects from the gateway.
+$encodedData = $_REQUEST['data'] ?? '';
 
 if ($encodedData === '') {
     $error = "No payment data received from eSewa.";
@@ -23,8 +21,8 @@ if ($encodedData === '') {
         $total_amount = $decoded['total_amount'] ?? '';
 
         // Look up the matching order in our own database
-        $stmt = $conn->prepare("SELECT * FROM orders WHERE transaction_uuid = ? AND user_id = ?");
-        $stmt->bind_param("si", $transaction_uuid, $user_id);
+        $stmt = $conn->prepare("SELECT * FROM orders WHERE transaction_uuid = ?");
+        $stmt->bind_param("s", $transaction_uuid);
         $stmt->execute();
         $order = $stmt->get_result()->fetch_assoc();
 
@@ -40,7 +38,16 @@ if ($encodedData === '') {
                 'transaction_uuid' => $transaction_uuid,
             ]);
 
-            $verifyResponse = @file_get_contents($statusUrl);
+            // Use cURL instead of file_get_contents — many shared hosts (including
+            // free hosts like InfinityFree) disable allow_url_fopen, which makes
+            // file_get_contents() silently fail on external URLs.
+            $ch = curl_init($statusUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+            $verifyResponse = curl_exec($ch);
+            curl_close($ch);
+
             $verifyData = $verifyResponse ? json_decode($verifyResponse, true) : null;
 
             if ($verifyData && isset($verifyData['status']) && $verifyData['status'] === 'COMPLETE') {

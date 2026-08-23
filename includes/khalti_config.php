@@ -17,5 +17,8 @@ define('KHALTI_INITIATE_URL', 'https://dev.khalti.com/api/v2/epayment/initiate/'
 define('KHALTI_LOOKUP_URL', 'https://dev.khalti.com/api/v2/epayment/lookup/');
 
 // Where Khalti redirects the browser back to after payment
-define('KHALTI_RETURN_URL', 'http://localhost/food_ordering_system/user/khalti_callback.php');
-define('KHALTI_WEBSITE_URL', 'http://localhost/food_ordering_system/');
+if (!defined('APP_URL')) {
+    require_once __DIR__ . '/config.php';
+}
+define('KHALTI_RETURN_URL', APP_URL . '/user/khalti_callback.php');
+define('KHALTI_WEBSITE_URL', APP_URL . '/');

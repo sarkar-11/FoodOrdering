@@ -54,7 +54,7 @@ include '../includes/header.php';
                 <div class="restaurant-card h-100 shadow-sm">
                     <div class="restaurant-card-img-wrap">
                         <?php if (!empty($r['image'])): ?>
-                            <img src="/food_ordering_system/assets/uploads/<?php echo htmlspecialchars($r['image']); ?>"
+                            <img src="<?php echo APP_BASE_URL; ?>/assets/uploads/<?php echo htmlspecialchars($r['image']); ?>"
                                  alt="<?php echo htmlspecialchars($r['name']); ?>"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="restaurant-placeholder" style="display:none; position:absolute; top:0; left:0;">

@@ -1,7 +1,5 @@
 <?php
 include '../includes/db.php';
-include '../includes/auth_check.php';
-require_role('user');
 
 $pageTitle = "Payment Failed";
 include '../includes/header.php';

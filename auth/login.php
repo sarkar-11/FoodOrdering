@@ -1,12 +1,15 @@
-<?php if (isset($_GET['msg']) && $_GET['msg'] === 'login_required'): ?>
-    <div class="alert alert-warning">Please login to continue.</div>
-<?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'unauthorized'): ?>
-    <div class="alert alert-danger">You don't have permission to access that page.</div>
-<?php endif; ?>
 <?php
 include '../includes/db.php';
+include '../includes/config.php';
 
 $error = "";
+$flashMessage = null;
+
+if (isset($_GET['msg']) && $_GET['msg'] === 'login_required') {
+    $flashMessage = ['type' => 'warning', 'text' => 'Please login to continue.'];
+} elseif (isset($_GET['msg']) && $_GET['msg'] === 'unauthorized') {
+    $flashMessage = ['type' => 'danger', 'text' => "You don't have permission to access that page."];
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
@@ -29,11 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Redirect based on role
             if ($user['role'] === 'admin') {
-                header("Location: ../admin/dashboard.php");
+                header("Location: " . APP_BASE_URL . "/admin/dashboard.php");
             } elseif ($user['role'] === 'restaurant') {
-                header("Location: ../restaurant/dashboard.php");
+                header("Location: " . APP_BASE_URL . "/restaurant/dashboard.php");
             } else {
-                header("Location: ../user/dashboard.php");
+                header("Location: " . APP_BASE_URL . "/user/dashboard.php");
             }
             exit();
         } else {
@@ -58,6 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if (isset($_GET['registered'])): ?>
             <div class="alert alert-success">Registration successful! Please login.</div>
+        <?php endif; ?>
+
+        <?php if ($flashMessage): ?>
+            <div class="alert alert-<?php echo htmlspecialchars($flashMessage['type']); ?>">
+                <?php echo htmlspecialchars($flashMessage['text']); ?>
+            </div>
         <?php endif; ?>
 
         <?php if ($error): ?>

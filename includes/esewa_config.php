@@ -13,5 +13,8 @@ define('ESEWA_PAYMENT_URL', 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
 define('ESEWA_STATUS_URL', 'https://rc.esewa.com.np/api/epay/transaction/status/');
 
 // Where eSewa redirects the browser back to after payment
-define('ESEWA_SUCCESS_URL', 'http://localhost/food_ordering_system/user/esewa_success.php');
-define('ESEWA_FAILURE_URL', 'http://localhost/food_ordering_system/user/esewa_failure.php');
+if (!defined('APP_URL')) {
+    require_once __DIR__ . '/config.php';
+}
+define('ESEWA_SUCCESS_URL', APP_URL . '/user/esewa_success.php');
+define('ESEWA_FAILURE_URL', APP_URL . '/user/esewa_failure.php');

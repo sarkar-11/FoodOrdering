@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $conn->prepare("INSERT INTO restaurants (user_id, name, description, address, image) VALUES (?, ?, ?, ?, ?)");
             $stmt->bind_param("issss", $user_id, $name, $description, $address, $image_name);
             if ($stmt->execute()) {
-                header("Location: dashboard.php?created=1");
+                header("Location: " . APP_BASE_URL . "/restaurant/dashboard.php?created=1");
                 exit();
             } else {
                 $error = "Something went wrong. Try again.";

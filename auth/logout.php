@@ -2,6 +2,7 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: ../auth/login.php");
+require_once __DIR__ . '/../includes/config.php';
+header("Location: " . APP_BASE_URL . "/auth/login.php");
 exit();
 ?>

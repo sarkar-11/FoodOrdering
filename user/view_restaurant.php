@@ -12,7 +12,7 @@ $stmt->execute();
 $restaurant = $stmt->get_result()->fetch_assoc();
 
 if (!$restaurant) {
-    header("Location: dashboard.php");
+    header("Location: " . APP_BASE_URL . "/user/dashboard.php");
     exit();
 }
 
@@ -79,7 +79,7 @@ include '../includes/header.php';
             <div class="col-md-4 mb-3">
                 <div class="card h-100 shadow-sm">
                     <?php if (!empty($food['image'])): ?>
-                        <img src="/food_ordering_system/assets/uploads/<?php echo htmlspecialchars($food['image']); ?>"
+                        <img src="<?php echo APP_BASE_URL; ?>/assets/uploads/<?php echo htmlspecialchars($food['image']); ?>"
                              class="card-img-top" style="height:160px; object-fit:cover;"
                              onerror="this.onerror=null; this.parentElement.querySelector('.img-fallback')?.remove(); this.insertAdjacentHTML('afterend', '<div class=\'img-fallback bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center\' style=\'height:160px;\'><i class=\'fa-solid fa-utensils fa-2x text-secondary\'></i></div>'); this.remove();">
                     <?php else: ?>

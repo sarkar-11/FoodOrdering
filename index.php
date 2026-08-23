@@ -1,5 +1,6 @@
 <?php
 include 'includes/db.php';
+include 'includes/config.php';
 $pageTitle = "Home";
 
 $featured = $conn->query("SELECT * FROM restaurants WHERE status='approved' ORDER BY created_at DESC LIMIT 6");
@@ -15,13 +16,13 @@ if (!$featured) {
     <title>DokoBites - Newari & Local Kitchens, Delivered</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="<?php echo APP_BASE_URL; ?>/assets/css/style.css" rel="stylesheet">
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="index.php">
+        <a class="navbar-brand fw-bold" href="<?php echo APP_BASE_URL; ?>/index.php">
             <i class="fa-solid fa-utensils me-2"></i>DokoBites
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
@@ -36,22 +37,22 @@ if (!$featured) {
                     </li>
 
                     <?php if ($_SESSION['role'] === 'user'): ?>
-                        <li class="nav-item"><a class="nav-link" href="user/dashboard.php">Restaurants</a></li>
-                        <li class="nav-item"><a class="nav-link" href="user/cart.php"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
-                        <li class="nav-item"><a class="nav-link" href="user/my_orders.php">My Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo APP_BASE_URL; ?>/user/dashboard.php">Restaurants</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo APP_BASE_URL; ?>/user/cart.php"><i class="fa-solid fa-cart-shopping"></i> Cart</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo APP_BASE_URL; ?>/user/my_orders.php">My Orders</a></li>
                     <?php elseif ($_SESSION['role'] === 'restaurant'): ?>
-                        <li class="nav-item"><a class="nav-link" href="restaurant/dashboard.php">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo APP_BASE_URL; ?>/restaurant/dashboard.php">Dashboard</a></li>
                     <?php elseif ($_SESSION['role'] === 'admin'): ?>
-                        <li class="nav-item"><a class="nav-link" href="admin/dashboard.php">Admin Panel</a></li>
+                        <li class="nav-item"><a class="nav-link" href="<?php echo APP_BASE_URL; ?>/admin/dashboard.php">Admin Panel</a></li>
                     <?php endif; ?>
 
                     <li class="nav-item">
-                        <a class="btn btn-sm btn-light ms-lg-2" href="auth/logout.php">Logout</a>
+                        <a class="btn btn-sm btn-light ms-lg-2" href="<?php echo APP_BASE_URL; ?>/auth/logout.php">Logout</a>
                     </li>
 
                 <?php else: ?>
-                    <li class="nav-item"><a class="nav-link" href="auth/login.php">Login</a></li>
-                    <li class="nav-item"><a class="btn btn-sm btn-light ms-lg-2" href="auth/register.php">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo APP_BASE_URL; ?>/auth/login.php">Login</a></li>
+                    <li class="nav-item"><a class="btn btn-sm btn-light ms-lg-2" href="<?php echo APP_BASE_URL; ?>/auth/register.php">Register</a></li>
                 <?php endif; ?>
 
             </ul>
@@ -67,10 +68,10 @@ if (!$featured) {
 
         <div class="hero-actions">
             <?php if (!isset($_SESSION['user_id'])): ?>
-                <a href="auth/register.php" class="btn btn-brick">Get Started</a>
-                <a href="auth/login.php" class="btn btn-outline-ink">I have an account</a>
+                <a href="<?php echo APP_BASE_URL; ?>/auth/register.php" class="btn btn-brick">Get Started</a>
+                <a href="<?php echo APP_BASE_URL; ?>/auth/login.php" class="btn btn-outline-ink">I have an account</a>
             <?php else: ?>
-                <a href="user/dashboard.php" class="btn btn-brick">Browse Restaurants</a>
+                <a href="<?php echo APP_BASE_URL; ?>/user/dashboard.php" class="btn btn-brick">Browse Restaurants</a>
                 
             <?php endif; ?>
         </div>
@@ -102,7 +103,7 @@ if (!$featured) {
             <div class="col-md-4 mb-4">
                 <div class="food-card">
                     <?php if ($r['image']): ?>
-                        <img src="assets/uploads/<?php echo htmlspecialchars($r['image']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($r['name']); ?>">
+                        <img src="<?php echo APP_BASE_URL; ?>/assets/uploads/<?php echo htmlspecialchars($r['image']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($r['name']); ?>">
                     <?php else: ?>
                         <div class="food-card-placeholder">
                             <i class="fa-solid fa-utensils fa-2x"></i>
@@ -111,7 +112,7 @@ if (!$featured) {
                     <div class="card-body">
                         <h5 class="card-title"><?php echo htmlspecialchars($r['name']); ?></h5>
                         <p class="card-text"><?php echo htmlspecialchars($r['description']); ?></p>
-                        <a href="<?php echo isset($_SESSION['user_id']) ? 'user/view_restaurant.php?id='.$r['id'] : 'auth/login.php'; ?>" class="btn btn-primary btn-sm">View Menu</a>
+                        <a href="<?php echo isset($_SESSION['user_id']) ? APP_BASE_URL . '/user/view_restaurant.php?id=' . $r['id'] : APP_BASE_URL . '/auth/login.php'; ?>" class="btn btn-primary btn-sm">View Menu</a>
                     </div>
                 </div>
             </div>

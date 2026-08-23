@@ -7,13 +7,7 @@ $user_id = $_SESSION['user_id'];
 $order_id = (int)($_GET['id'] ?? 0);
 
 // Fetch order, making sure it belongs to this user (security check)
-$stmt = $conn->prepare("
-    SELECT o.*, r.name AS restaurant_name, r.address AS restaurant_address, u.name AS customer_name, u.email AS customer_email
-    FROM orders o
-    JOIN restaurants r ON o.restaurant_id = r.id
-    JOIN users u ON o.user_id = u.id
-    WHERE o.id = ? AND o.user_id = ?
-");
+$stmt = $conn->prepare("SELECT o.*, r.name AS restaurant_name, r.address AS restaurant_address, u.name AS customer_name, u.email AS customer_email FROM orders o JOIN restaurants r ON o.restaurant_id = r.id JOIN users u ON o.user_id = u.id WHERE o.id = ? AND o.user_id = ?");
 $stmt->bind_param("ii", $order_id, $user_id);
 $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
@@ -24,17 +18,12 @@ if (!$order) {
 }
 
 // Fetch order items
-$itemsStmt = $conn->prepare("
-    SELECT oi.*, f.name AS food_name
-    FROM order_items oi
-    JOIN foods f ON oi.food_id = f.id
-    WHERE oi.order_id = ?
-");
+$itemsStmt = $conn->prepare("SELECT oi.*, f.name AS food_name FROM order_items oi JOIN foods f ON oi.food_id = f.id WHERE oi.order_id = ?");
 $itemsStmt->bind_param("i", $order_id);
 $itemsStmt->execute();
 $items = $itemsStmt->get_result();
 
-$paymentLabels = ['cod' => 'Cash on Delivery', 'esewa' => 'eSewa', 'khalti' => 'Khalti'];
+$paymentLabels = ['cod' => 'Cash on Delivery', 'esewa' => 'eSewa'];
 
 $pageTitle = "Receipt - Order #" . $order['id'];
 include '../includes/header.php';

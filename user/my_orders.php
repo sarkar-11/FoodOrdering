@@ -16,7 +16,7 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $orders = $stmt->get_result();
 
-$paymentLabels = ['cod' => 'Cash on Delivery', 'esewa' => 'eSewa', 'khalti' => 'Khalti'];
+$paymentLabels = ['cod' => 'Cash on Delivery', 'esewa' => 'eSewa'];
 
 $pageTitle = "My Orders";
 include '../includes/header.php';

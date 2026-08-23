@@ -1,7 +1,7 @@
 <?php
 include '../includes/db.php';
 include '../includes/auth_check.php';
-require_role('user');
+
 
 $user_id = $_SESSION['user_id'];
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         header("Location: cart.php");
         exit();
     }
-    $allowedMethods = ['cod', 'esewa', 'khalti'];
+    $allowedMethods = ['cod', 'esewa'];
     $payment_method = in_array($_POST['payment_method'] ?? '', $allowedMethods) ? $_POST['payment_method'] : 'cod';
     $notes = trim($_POST['notes'] ?? '');
     if (strlen($notes) > 300) {
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $delivery_lng = !empty($_POST['delivery_lng']) ? (float)$_POST['delivery_lng'] : null;
 
     // Every order starts unpaid. COD stays unpaid until delivery.
-    // eSewa and Khalti orders stay unpaid until their real gateway confirms
+    // eSewa orders stay unpaid until the real gateway confirms
     // payment on callback — nothing is marked paid until independently verified.
     $payment_status = 'unpaid';
 
@@ -84,12 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             if ($payment_method === 'esewa') {
                 // Send them to the real eSewa test gateway instead of straight to success
                 header("Location: esewa_pay.php?order_id=" . $order_id);
-                exit();
-            }
-
-            if ($payment_method === 'khalti') {
-                // Send them to the real Khalti test gateway
-                header("Location: khalti_pay.php?order_id=" . $order_id);
                 exit();
             }
 
@@ -167,13 +161,6 @@ include '../includes/header.php';
                         <i class="fa-solid fa-wallet me-1"></i> eSewa
                     </label>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment_method" id="pm_khalti" value="khalti">
-                    <label class="form-check-label" for="pm_khalti">
-                        <i class="fa-solid fa-mobile-screen-button me-1"></i> Khalti
-                    </label>
-                </div>
-
                 <small class="text-muted mt-2">
                     Selecting eSewa takes you to eSewa's real test payment gateway.
                 </small>

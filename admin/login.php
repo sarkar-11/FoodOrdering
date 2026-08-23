@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+include '../includes/config.php';
 
 $error = "";
 
@@ -26,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
 
-            header("Location: dashboard.php");
+            header("Location: " . APP_BASE_URL . "/admin/dashboard.php");
             exit();
         } else {
             $error = "Incorrect password.";
@@ -65,7 +66,7 @@ include '../includes/header.php';
             Need an admin account? <a href="register.php">Register here</a>
         </p>
         <p class="text-center small">
-            <a href="../auth/login.php">Back to regular login</a>
+            <a href="<?php echo APP_BASE_URL; ?>/auth/login.php">Back to regular login</a>
         </p>
     </div>
 </div>

@@ -8,6 +8,11 @@ $stmt = $conn->prepare("SELECT id FROM restaurants WHERE user_id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $restaurant = $stmt->get_result()->fetch_assoc();
+
+if (!$restaurant) {
+    header("Location: " . APP_BASE_URL . "/restaurant/setup_restaurant.php");
+    exit();
+}
 $restaurant_id = $restaurant['id'];
 
 $food_id = (int)$_GET['id'];
@@ -19,7 +24,7 @@ $stmt2->execute();
 $food = $stmt2->get_result()->fetch_assoc();
 
 if (!$food) {
-    header("Location: manage_foods.php");
+    header("Location: " . APP_BASE_URL . "/restaurant/manage_foods.php");
     exit();
 }
 

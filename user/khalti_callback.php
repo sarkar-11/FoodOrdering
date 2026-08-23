@@ -1,22 +1,19 @@
 <?php
 include '../includes/db.php';
-include '../includes/auth_check.php';
 include '../includes/khalti_config.php';
-require_role('user');
 
-$user_id = $_SESSION['user_id'];
 $error = "";
 $order = null;
 
-$pidx = $_GET['pidx'] ?? '';
-$statusFromUrl = $_GET['status'] ?? '';
+$pidx = $_REQUEST['pidx'] ?? '';
+$statusFromUrl = $_REQUEST['status'] ?? '';
 
 if ($pidx === '') {
     $error = "No payment reference received from Khalti.";
 } else {
     // Find the matching order by the pidx we saved before redirecting
-    $stmt = $conn->prepare("SELECT * FROM orders WHERE transaction_uuid = ? AND user_id = ?");
-    $stmt->bind_param("si", $pidx, $user_id);
+    $stmt = $conn->prepare("SELECT * FROM orders WHERE transaction_uuid = ?");
+    $stmt->bind_param("s", $pidx);
     $stmt->execute();
     $order = $stmt->get_result()->fetch_assoc();
 

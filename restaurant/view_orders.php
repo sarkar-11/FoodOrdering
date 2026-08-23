@@ -42,7 +42,7 @@ $ordersStmt->bind_param("i", $restaurant_id);
 $ordersStmt->execute();
 $orders = $ordersStmt->get_result();
 
-$paymentLabels = ['cod' => 'Cash on Delivery', 'esewa' => 'eSewa', 'khalti' => 'Khalti'];
+$paymentLabels = ['cod' => 'Cash on Delivery', 'esewa' => 'eSewa'];
 
 $pageTitle = "Orders";
 include '../includes/header.php';

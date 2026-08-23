@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+include '../includes/config.php';
 include '../includes/mailer.php';
 
 $error = "";
@@ -26,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update->bind_param("ssi", $token, $expires, $user['id']);
             $update->execute();
 
-            $resetLink = "http://localhost/food_ordering_system/auth/reset_password.php?token=" . $token;
+            if (!defined('APP_URL')) {
+                require_once __DIR__ . '/../includes/config.php';
+            }
+
+            $resetLink = APP_URL . '/auth/reset_password.php?token=' . urlencode($token);
 
             // Actually send the email now instead of displaying the link
             sendResetEmail($email, $user['name'], $resetLink);

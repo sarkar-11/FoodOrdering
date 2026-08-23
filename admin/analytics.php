@@ -1,47 +1,59 @@
 <?php
 include '../includes/db.php';
 include '../includes/auth_check.php';
-require_role('admin');
 
-if (isset($_GET['approve'])) {
-    $id = (int)$_GET['approve'];
-    $stmt = $conn->prepare("UPDATE restaurants SET status='approved' WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    header("Location: manage_restaurants.php?updated=1");
-    exit();
-}
-if (isset($_GET['reject'])) {
-    $id = (int)$_GET['reject'];
-    $stmt = $conn->prepare("UPDATE restaurants SET status='rejected' WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    header("Location: manage_restaurants.php?updated=1");
-    exit();
-}
-if (isset($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
-    $stmt = $conn->prepare("DELETE FROM restaurants WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    header("Location: manage_restaurants.php?deleted=1");
-    exit();
-}
 
-$restaurants = $conn->query("
-    SELECT r.*, u.email AS owner_email
-    FROM restaurants r
-    JOIN users u ON r.user_id = u.id
-    ORDER BY r.created_at DESC
+// Revenue trend - last 7 days
+$revenueTrend = $conn->query("
+    SELECT DATE(created_at) AS day, SUM(total_amount) AS total
+    FROM orders
+    WHERE payment_status = 'paid' AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    GROUP BY DATE(created_at)
+    ORDER BY day ASC
 ");
-$totalCount = $restaurants ? $restaurants->num_rows : 0;
+$trendMap = [];
+while ($row = $revenueTrend->fetch_assoc()) {
+    $trendMap[$row['day']] = (float)$row['total'];
+}
+$trendLabels = [];
+$trendData = [];
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-$i days"));
+    $trendLabels[] = date('M d', strtotime($date));
+    $trendData[] = $trendMap[$date] ?? 0;
+}
+
+// Order status breakdown
+$statusBreakdown = $conn->query("SELECT status, COUNT(*) AS c FROM orders GROUP BY status");
+$statusLabels = [];
+$statusData = [];
+while ($row = $statusBreakdown->fetch_assoc()) {
+    $statusLabels[] = ucfirst($row['status']);
+    $statusData[] = (int)$row['c'];
+}
+
+// Top 5 selling dishes
+$topDishes = $conn->query("
+    SELECT f.name, SUM(oi.quantity) AS total_qty
+    FROM order_items oi
+    JOIN foods f ON oi.food_id = f.id
+    GROUP BY f.id
+    ORDER BY total_qty DESC
+    LIMIT 5
+");
+$dishLabels = [];
+$dishData = [];
+while ($row = $topDishes->fetch_assoc()) {
+    $dishLabels[] = $row['name'];
+    $dishData[] = (int)$row['total_qty'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Restaurants - Admin</title>
+    <title>Analytics - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
@@ -102,71 +114,87 @@ $totalCount = $restaurants ? $restaurants->num_rows : 0;
     <nav class="admin-nav">
         <a href="dashboard.php" class="admin-nav-link"><i class="fa-solid fa-house"></i> Dashboard</a>
         <a href="manage_users.php" class="admin-nav-link"><i class="fa-solid fa-users"></i> Customers</a>
-        <a href="manage_restaurants.php" class="admin-nav-link active"><i class="fa-solid fa-store"></i> Restaurants</a>
+        <a href="manage_restaurants.php" class="admin-nav-link"><i class="fa-solid fa-store"></i> Restaurants</a>
         <a href="add_restaurant.php" class="admin-nav-link"><i class="fa-solid fa-circle-plus"></i> Add Restaurant</a>
         <a href="add_food.php" class="admin-nav-link"><i class="fa-solid fa-utensils"></i> Add Food</a>
         <a href="manage_foods.php" class="admin-nav-link"><i class="fa-solid fa-list"></i> Manage Foods</a>
         <a href="manage_orders.php" class="admin-nav-link"><i class="fa-solid fa-receipt"></i> Orders</a>
-        <a href="analytics.php" class="admin-nav-link"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        <a href="analytics.php" class="admin-nav-link active"><i class="fa-solid fa-chart-line"></i> Analytics</a>
         <a href="profile.php" class="admin-nav-link"><i class="fa-solid fa-id-badge"></i> My Profile</a>
         <a href="../auth/logout.php" class="admin-nav-link mt-auto"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </nav>
 </div>
 
 <div class="admin-content">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">Manage Restaurants</h3>
-        <div>
-            <a href="add_restaurant.php" class="btn btn-success btn-sm">+ Add Restaurant</a>
-            <span class="badge bg-secondary"><?php echo $totalCount; ?> total</span>
+    <h3 class="mb-4">Analytics</h3>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card p-3 shadow-sm border-0">
+                <h6 class="text-muted">Revenue — Last 7 Days (Paid Orders)</h6>
+                <canvas id="revenueChart" height="90"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-3 shadow-sm border-0">
+                <h6 class="text-muted">Orders by Status</h6>
+                <canvas id="statusChart" height="200"></canvas>
+            </div>
         </div>
     </div>
 
-    <?php if (isset($_GET['updated'])): ?>
-        <div class="alert alert-success">Restaurant status updated.</div>
-    <?php elseif (isset($_GET['deleted'])): ?>
-        <div class="alert alert-success">Restaurant deleted.</div>
-    <?php endif; ?>
-
-    <?php if ($totalCount === 0): ?>
-        <p>No restaurants registered yet.</p>
-    <?php else: ?>
-        <div class="table-responsive">
-            <table class="table bg-white shadow-sm align-middle">
-                <thead>
-                    <tr><th>Name</th><th>Owner Email</th><th>Status</th><th>Actions</th></tr>
-                </thead>
-                <tbody>
-                    <?php while ($r = $restaurants->fetch_assoc()): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($r['name']); ?></td>
-                        <td><?php echo htmlspecialchars($r['owner_email']); ?></td>
-                        <td>
-                            <span class="badge bg-<?php
-                                echo $r['status']==='approved' ? 'success' : ($r['status']==='rejected' ? 'danger' : 'warning');
-                            ?>">
-                                <?php echo ucfirst($r['status']); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <?php if ($r['status'] !== 'approved'): ?>
-                                <a href="?approve=<?php echo $r['id']; ?>" class="btn btn-sm btn-success">Approve</a>
-                            <?php endif; ?>
-                            <?php if ($r['status'] !== 'rejected'): ?>
-                                <a href="?reject=<?php echo $r['id']; ?>" class="btn btn-sm btn-warning">Reject</a>
-                            <?php endif; ?>
-                            <a href="?delete=<?php echo $r['id']; ?>" class="btn btn-sm btn-danger"
-                               onclick="return confirm('Delete this restaurant and all its foods?');">Delete</a>
-                            <a href="manage_foods.php?restaurant_id=<?php echo $r['id']; ?>" class="btn btn-sm btn-outline-dark">Manage Menu</a>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card p-3 shadow-sm border-0">
+                <h6 class="text-muted">Top 5 Best-Selling Dishes</h6>
+                <canvas id="topDishesChart" height="100"></canvas>
+            </div>
         </div>
-    <?php endif; ?>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+        labels: <?php echo json_encode($trendLabels); ?>,
+        datasets: [{
+            label: 'Revenue (Rs.)',
+            data: <?php echo json_encode($trendData); ?>,
+            borderColor: '#d9480f',
+            backgroundColor: 'rgba(217,72,15,0.1)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: { plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: <?php echo json_encode($statusLabels); ?>,
+        datasets: [{
+            data: <?php echo json_encode($statusData); ?>,
+            backgroundColor: ['#ffc107', '#0dcaf0', '#6f42c1', '#198754', '#dc3545']
+        }]
+    }
+});
+
+new Chart(document.getElementById('topDishesChart'), {
+    type: 'bar',
+    data: {
+        labels: <?php echo json_encode($dishLabels); ?>,
+        datasets: [{
+            label: 'Units Sold',
+            data: <?php echo json_encode($dishData); ?>,
+            backgroundColor: '#d9480f'
+        }]
+    },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+});
+</script>
+
 </body>
 </html>

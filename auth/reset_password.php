@@ -1,12 +1,13 @@
 <?php
 include '../includes/db.php';
+include '../includes/config.php';
 
 $token = trim($_GET['token'] ?? $_POST['token'] ?? '');
 $error = "";
 $success = false;
 
 if ($token === '') {
-    header("Location: forgot_password.php");
+    header("Location: " . APP_BASE_URL . "/auth/forgot_password.php");
     exit();
 }
 

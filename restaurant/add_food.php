@@ -11,10 +11,10 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $restaurant = $stmt->get_result()->fetch_assoc();
 
-if (!$restaurant) {
-    header("Location: setup_restaurant.php");
-    exit();
-}
+    if (!$restaurant) {
+        header("Location: " . APP_BASE_URL . "/restaurant/setup_restaurant.php");
+        exit();
+    }
 $restaurant_id = $restaurant['id'];
 
 $error = "";
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt2->bind_param("issds", $restaurant_id, $name, $description, $price, $image_name);
 
             if ($stmt2->execute()) {
-                header("Location: manage_foods.php?added=1");
+                header("Location: " . APP_BASE_URL . "/restaurant/manage_foods.php?added=1");
                 exit();
             } else {
                 $error = "Database error: could not save the food item. Please try again.";

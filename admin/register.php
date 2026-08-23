@@ -1,6 +1,7 @@
 
 <?php
 include '../includes/db.php';
+include '../includes/config.php';
 
 // Change this to your own secret value — anyone who doesn't know this code
 // cannot create an admin account, even if they find this page.
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt2->bind_param("ssss", $name, $email, $hashed_password, $role);
 
             if ($stmt2->execute()) {
-                header("Location: login.php?registered=1");
+                header("Location: " . APP_BASE_URL . "/admin/login.php?registered=1");
                 exit();
             } else {
                 $error = "Something went wrong. Try again.";

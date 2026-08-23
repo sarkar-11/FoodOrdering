@@ -12,7 +12,7 @@ $stmt->execute();
 $restaurant = $stmt->get_result()->fetch_assoc();
 
 if (!$restaurant) {
-    header("Location: setup_restaurant.php");
+    header("Location: " . APP_BASE_URL . "/restaurant/setup_restaurant.php");
     exit();
 }
 $restaurant_id = $restaurant['id'];
@@ -23,7 +23,7 @@ if (isset($_GET['delete'])) {
     $del = $conn->prepare("DELETE FROM foods WHERE id = ? AND restaurant_id = ?");
     $del->bind_param("ii", $food_id, $restaurant_id);
     $del->execute();
-    header("Location: manage_foods.php?deleted=1");
+    header("Location: " . APP_BASE_URL . "/restaurant/manage_foods.php?deleted=1");
     exit();
 }
 

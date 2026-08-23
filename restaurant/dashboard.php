@@ -2,8 +2,9 @@
 // Include database connection
 include '../includes/db.php';
 
-// Check if the user is logged in
+// Check if the user is logged in and is a restaurant owner
 include '../includes/auth_check.php';
+require_role('restaurant');
 
 // Get the logged-in user's ID from the session
 $user_id = $_SESSION['user_id'];

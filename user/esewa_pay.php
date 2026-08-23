@@ -14,7 +14,7 @@ $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 
 if (!$order) {
-    header("Location: my_orders.php");
+    header("Location: " . APP_BASE_URL . "/user/my_orders.php");
     exit();
 }
 
