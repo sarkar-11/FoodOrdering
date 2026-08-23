@@ -453,6 +453,4 @@ You are free to modify and improve the project according to your requirements.
 If you find this project useful, consider giving the repository a ⭐ on GitHub.
 
 **FoodOrdering — Fresh Food • Fast Delivery • Happy Customers 🇳🇵**
-=======
-# FoodOrdering
->>>>>>> 21f638b8e0923c1ad60528ee32bba014ed46d890
+
