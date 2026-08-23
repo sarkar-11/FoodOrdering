@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # FoodOrdering — DokoBites Food Ordering System
 
 A web-based **Food Ordering System** developed using **PHP, MySQL, HTML, CSS, and JavaScript**. The system allows customers to browse restaurants, view food menus, place orders, and manage their orders. Restaurants can manage their food items and orders, while administrators can manage users, restaurants, and the overall system.
@@ -453,3 +454,6 @@ You are free to modify and improve the project according to your requirements.
 If you find this project useful, consider giving the repository a ⭐ on GitHub.
 
 **FoodOrdering — Fresh Food • Fast Delivery • Happy Customers 🇳🇵**
+=======
+# FoodOrdering
+>>>>>>> 21f638b8e0923c1ad60528ee32bba014ed46d890
